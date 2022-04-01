@@ -45,7 +45,7 @@ class measurement(float):
         other.impd = newsigfig
         self.impd = newsigfig
         self.value = float(self.limittosigfig()) 
-        other.value = float(other.limittosigfig())
+        other.value = 15.000
         addedterm = measurement(float(other.limittosigfig()),newsigfig,other.error,other.unit)
         
         print(other)
@@ -72,10 +72,7 @@ class measurement(float):
         return out
     
         
-a = measurement(5.134,5,0,'')+measurement(5.4857 ,5,0,'')
+a = measurement(5.134,5,0,'')+measurement(7.4857 ,5,0,'')
 print(a)
-
-    
-
 
     
