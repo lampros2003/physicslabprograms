@@ -2,8 +2,10 @@
 from cmath import log10
 from distutils.log import error
 import math
+from symtable import Symbol
 
 import sympy
+#from  sympy.abc import x,y
 import sigfig
 def round_it(x, sig):
         return round(x, sig-int(math.floor(math.log10(abs(x))))-1)
@@ -17,17 +19,21 @@ def findofm(num):
 class measurement(float):
     
     def limittosigfig(self):
+        strval =str(self.value)
         if self.value < 1:
             i=0
-            strval =str(self.value)
+            
             sfig = ''
             counter = 0
             counter = self.sfig + strval.count('.')
-
+            numcheck=0 
             while counter != 1 and i <len(strval):
-                
+                print(strval[i])
                 sfig += strval[i]
-                if strval[i]!='0' and strval[i]!='.' and strval[i]!='-' :
+                if strval[i] in '123456789':
+                    numcheck == 1
+                
+                if (strval[i]!='0' or numcheck == 1) and strval[i]!='.' and strval[i]!='-' :
                     
                     counter -= 1
                 
@@ -37,8 +43,15 @@ class measurement(float):
                 sfig +=  '0'
                 counter -=1
             return sfig
-        else:return (str(self.value) +(1-str(self.value).count('.'))*'.'+ self.sfig*'0')[:self.sfig+1]
-    def __new__(self, value =0 , sigfigs = 1,error = 0,unit = ''):
+        else:
+            strval += (1-strval.count('.'))*'.'
+            strval += self.sfig *'0'
+            
+            sfig = strval[:self.sfig + strval.count('.')]
+            
+            return sfig
+           
+    def __new__(self, value =0 , sigfigs = 1,error = 0,unit = '',symb = ''):
        
         
         
@@ -46,14 +59,16 @@ class measurement(float):
 
 
         return float.__new__(self,value)
-    def __init__(self, value =0 , sigfigs = 1,error = 0,unit = '1'):
+    def __init__(self, value =0 , sigfigs = 1,error = 0,unit = '1',symb=''):
         self.error = float(error)
         self.sfig = sigfigs
         self.unit = unit
         self.value = value
-        float.__init__(value)
+        
+        
+        
     def __str__(self):
-        return self.limittosigfig()+self.unit+ " +- "+str(self.error) + self.unit.replace('1','') + " with "+str(self.sfig)+" significant figures" 
+        return self.limittosigfig() + self.unit.replace('1','')+ " +- "+str(self.error) + self.unit.replace('1','') + " with "+str(self.sfig)+" significant figures" 
     def __add__(self, x ):
         print("added")
         
@@ -126,9 +141,56 @@ class measurement(float):
             
 
         return measurement(outvalue,sigfigs,round_it(error, 1),unit)
+class expression():
+    def __init__(self,strval,*args) -> None:
+        self.args = args
+        self.str = strval
+        self.symstrs = []
+        self.symbs = []
+        self.symbs = sympy.symbols(self.args)    
+        self.symexp = sympy.sympify(strval)
+    def deriveall(self):
+        derivs = []
+        i=0
+        while i < len(self.symbs):
+            derivs.append(sympy.Derivative(self.symexp,self.symbs[i],evaluate = True ))
+            i +=1 
+
+        return derivs
+    def derivetwice(self):
+        derivs = []
+        i=0
+        while i < len(self.symbs):
+            derivs.append(sympy.Derivative(sympy.Derivative(self.symexp,self.symbs[i],evaluate = True )))
+            i +=1 
+
+        return derivs
+    def calcerrorexpr(self):
+        self.errormatix = self.deriveall()
+        c= 0
+        for i in self.symbs:
+            self.errormatix[c] =self.errormatix[c] * i   
+            c +=1
+
+        return self.errormatix
+
+e = expression('a*b+12*c','a','b','c')
+print(e.calcerrorexpr() )
+            
+
+        
+
+
+
+
+        
+
+
 
   
-   
+
+ 
+
 
 
 
@@ -139,9 +201,5 @@ class measurement(float):
 
 
 
-k = measurement()
-b = measurement(10,4,0.3)
-c = measurement(5,4,0.3,'cm')
-a = b/c
-print(a)
+
 
