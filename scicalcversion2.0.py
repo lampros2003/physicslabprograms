@@ -1,5 +1,6 @@
 
 from cmath import sqrt
+from itertools import count
 import math
 import sympy
 import sigfig
@@ -12,17 +13,35 @@ def round_it(x, sig):
 class measurement(float):
     def leadingzzero(self):
         i=0
-        while str(self.value)[i]=='0' or str(self.value)[i]=='.':
-            i +=1 
-            self.nm +=1
+        try:
+            while str(self.value)[i]=='0' or str(self.value)[i]=='.':
+                i +=1 
+                self.nm +=1
+            
+
+        except: 
+            pass
 
 
 
     def limittosigfig(self):
-        adjustment = 0 
-        if self.value>1:
-            adjustment += 1
-        sfig = (str(self.value)+(self.impd*"0"))[:self.impd+adjustment-1]
+        i=0
+        sfig = ''
+        counter = 0
+        counter = self.impd
+
+        while counter != 0:
+            if str(self.value)[i]=='0' or str(self.value)[i]=='.':
+                sfig += str(self.value)[i]
+                counter -= 1
+                i+=1
+
+
+
+        
+
+
+
         return sfig
     def __new__(self, value, importantdigits,error,unit):
         
@@ -40,7 +59,7 @@ class measurement(float):
         
         
     def __str__(self):
-        return self.limittosigfig()+self.unit+ " +- "+str(self.error) + self.unit + " with "+str(self.impdtoprint-self.nm )+" significant figures" 
+        return self.limittosigfig()+self.unit+ " +- "+str(self.error) + self.unit + " with "+str(self.impdtoprint-self.nm - 1 )+" significant figures" 
         
     def __mul__(self, __x) :
         value = super().__mul__(__x)
@@ -68,7 +87,7 @@ class measurement(float):
 
         out.value = super().__add__(x)
         out.impd = (min (self.impd , x.impd))
-        out.limittosigfig
+        
         return out
         
 
@@ -87,7 +106,7 @@ class measurement(float):
         return out
     
         
-a = measurement(5,4,0.04,'') * measurement(0.5,4,0.04,'') 
+a = measurement(0.5234,4,0.04,'') +measurement(0.52349,5,0.04,'') 
 print(a)
 
     
