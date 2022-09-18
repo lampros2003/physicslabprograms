@@ -142,7 +142,8 @@ class measurement(float):
 
         return measurement(outvalue,sigfigs,round_it(error, 1),unit)
 class expression():
-    def __init__(self,strval,*args) -> None:
+
+    def __init__(self,strval,*args:sympy.symbols) -> None:
         self.args = args
         self.str = strval
         self.symstrs = []
@@ -158,13 +159,13 @@ class expression():
 
         return derivs
     def derivetwice(self):
-        derivs = []
+        derivs2 = []
         i=0
         while i < len(self.symbs):
-            derivs.append(sympy.Derivative(sympy.Derivative(self.symexp,self.symbs[i],evaluate = True )))
+            derivs2.append(sympy.Derivative(sympy.Derivative(self.symexp,self.symbs[i],evaluate = True )))
             i +=1 
 
-        return derivs
+        return derivs2
     def calcerrorexpr(self):
         self.errormatix = self.deriveall()
         c= 0
@@ -176,6 +177,7 @@ class expression():
 
 e = expression('a*b+12*c','a','b','c')
 print(e.calcerrorexpr() )
+
             
 
         
